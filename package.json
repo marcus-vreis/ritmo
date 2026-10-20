@@ -1,7 +1,7 @@
 {
   "name": "ritmo",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agenda de rotinas e foco para o desktop (Tauri v2)",
   "license": "MIT",
   "scripts": {

@@ -59,10 +59,17 @@ function validarConfig(c) {
     });
   }
   (c.habitos || []).forEach(h => { if (!c.rotinas[h]) erros.push(`hábito "${h}" não é uma rotina`) });
+  (c.eventos || []).forEach((x, i) => {
+    if (!/^\d{4}-\d\d-\d\d$/.test(x.data)) erros.push(`eventos[${i}]: data inválida (use AAAA-MM-DD)`);
+    if (!/^\d\d:\d\d$/.test(x.ini) || !/^\d\d:\d\d$/.test(x.fim)) erros.push(`eventos[${i}]: horário inválido`);
+    if (!c.contextos[x.ctx]) erros.push(`eventos[${i}]: contexto "${x.ctx}" não existe`);
+    if (x.rotina && !c.rotinas[x.rotina]) erros.push(`eventos[${i}]: rotina "${x.rotina}" não existe`);
+  });
   if (erros.length) throw new Error(erros.slice(0, 4).join('; '));
   c.presets ??= { '25/5': [25, 5, 15], '50/10': [50, 10, 20] };
   c.habitos ??= [];
   c.checklistNoite ??= [];
+  c.eventos ??= [];
   return c;
 }
 const exemplo = async () => (await fetch('config.exemplo.json')).text();
@@ -87,7 +94,12 @@ async function carregarEstado() {
 }
 function salvar() { ponte.salvar('estado.json', JSON.stringify(S)).catch(err => toast('Erro ao salvar: ' + err)) }
 function dia(k) { return S.dias[k] ??= { habitos: {}, campos: {}, lazer: {}, checklist: {}, fechado: false } }
-function blocosDe(k) { return CONFIG.semana[dataDe(k).getDay()] }
+// Blocos da semana-tipo mais os eventos com data daquele dia, em ordem de horário.
+function blocosDe(k) {
+  const ev = CONFIG.eventos.filter(e => e.data === k);
+  const L = CONFIG.semana[dataDe(k).getDay()];
+  return ev.length ? [...L, ...ev].sort((a, b) => minDe(a.ini) - minDe(b.ini)) : L;
+}
 function blocoAtual() {
   const L = blocosDe(hoje()), n = agoraMin();
   return { atual: L.find(x => minDe(x.ini) <= n && n < minDe(x.fim)), prox: L.find(x => minDe(x.ini) > n) };

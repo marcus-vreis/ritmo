@@ -43,6 +43,7 @@ Edite e use **Ajustes → Recarregar config**, ou **Ajustes → Importar config�
 | `rotinas` | Roteiros guiados: `nome`, `minimo` e `passos`. |
 | `habitos` | Rotinas que aparecem na grade da semana. |
 | `semana` | De `"0"` (domingo) a `"6"` (sábado): blocos `{ini, fim, titulo, ctx}` com `rotina`, `foco: true` ou `lazer: true`. |
+| `eventos` | Compromissos com data, que entram só naquele dia: `{data: "AAAA-MM-DD", ini, fim, titulo, ctx}`. |
 | `presets` | Durações do foco: `[foco, pausa, pausa longa a cada 4]`, em minutos. |
 | `checklistNoite`, `fechamento.rotina` | Itens e rotina da aba Fechar o dia. |
 
