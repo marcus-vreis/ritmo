@@ -16,6 +16,9 @@ O dia é organizado em **blocos ancorados** (acordar, trabalho, almoço, noite).
 - **Fechar o dia**: checklist da noite, revisão, pendências, triagem das distrações e as 3 prioridades de amanhã.
 - **Widget**: janela pequena sempre por cima, com o timer e os blocos atual e seguinte. Pode ser arrastada.
 - **Bandeja e inicialização**: fechar a janela só esconde o app. Opcionalmente abre com o Windows, mostrando só o widget.
+- **Sistema**: GPU NVIDIA (uso, VRAM, temperatura, potência, clocks, ventoinha, processos de computação), CPU, RAM e discos, lidos a cada 2 s.
+  Avisa quando a GPU passa 10 min ocupada e depois fica 5 min parada (o treino acabou ou caiu). Também avisa se a VRAM está cheia com a GPU parada, e se um bloco de lazer começa com a GPU ocupada.
+  O widget mostra a GPU, e a aba Semana mostra as horas de GPU ocupada.
 - **Notificações nativas** no fim de cada bloco de foco e no início de cada bloco com roteiro.
 
 ## Instalar

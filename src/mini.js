@@ -7,11 +7,14 @@ const { listen, emit } = window.__TAURI__.event;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = n => String(n).padStart(2, '0');
 const mmss = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}` };
-let E = null;
+let E = null, G = null; // G: última leitura da GPU 0
 
 const restante = T => T.pausado ? T.restante : T.fimTs - Date.now();
 const linhaBloco = (rot, b) => b
   ? `<div class="agenda"><span class="ponto" style="background:${b.cor}"></span><span class="m">${rot}</span><span class="l">${b.ini} ${esc(b.titulo)}</span></div>`
+  : '';
+const linhaGpu = () => G
+  ? `<div class="agenda m" data-tauri-drag-region><span class="ponto" style="background:${G.uso >= 50 ? 'var(--acento)' : 'var(--linha)'}"></span>GPU ${G.uso}% · ${(G.vramUsada / 1024 ** 3).toFixed(1)}/${(G.vramTotal / 1024 ** 3).toFixed(0)} GB${G.temperatura != null ? ` · ${G.temperatura} °C` : ''}${G.processos.length ? ` · ${esc(G.processos[0].nome)}` : ''}</div>`
   : '';
 const botoes = extra => `<span class="botoes" data-tauri-drag-region>${extra}<button data-a="abrir" title="Abrir o ritmo">↗</button><button data-a="fechar" title="Ocultar widget">✕</button></span>`;
 
@@ -27,16 +30,16 @@ function render() {
         ${botoes(T.fase === 'foco' ? `<button data-a="pausar" title="${T.pausado ? 'Retomar' : 'Pausar'}">${T.pausado ? '▶' : '❚❚'}</button>` : '')}</div>
       <div class="prog ${T.fase}"><div style="width:${pct}%"></div></div>
       ${T.fase === 'foco' ? `<div class="l m" data-tauri-drag-region>1º passo: ${esc(T.passo)}</div>` : ''}
-      ${linhaBloco('depois', E.prox)}`;
+      ${linhaBloco('depois', E.prox)}${linhaGpu()}`;
   } else if (T && T.fase === 'registro') {
     raiz.innerHTML = `<div class="topo"><div class="info" data-tauri-drag-region><div class="fase">bloco concluído</div>
       <div class="l grande">${esc(T.tarefa)}</div></div>${botoes('')}</div>
-      <div class="m">Registre o que saiu na janela principal.</div>`;
+      <div class="m">Registre o que saiu na janela principal.</div>${linhaGpu()}`;
   } else {
     const a = E.atual;
     raiz.innerHTML = `<div class="topo" data-tauri-drag-region><div class="info" data-tauri-drag-region><div class="fase">${a ? `agora · até ${a.fim}` : 'livre agora'}</div>
       <div class="l grande">${a ? esc(a.titulo) : '—'}</div></div>${botoes('')}</div>
-      ${linhaBloco('depois', E.prox)}`;
+      ${linhaBloco('depois', E.prox)}${linhaGpu()}`;
   }
 }
 
@@ -47,6 +50,7 @@ document.addEventListener('click', e => {
   else emit('mini-acao', a);
 });
 listen('mini', e => { E = e.payload; render() });
+listen('sistema', e => { G = e.payload[0].gpus[0] || null; if (!E?.timer || E.timer.pausado) render() });
 emit('mini-acao', 'pedir');
 render();
 setInterval(() => { if (E?.timer && !E.timer.pausado) render() }, 1000);

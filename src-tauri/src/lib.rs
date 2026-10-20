@@ -1,3 +1,5 @@
+mod monitor;
+
 use std::{
     collections::HashMap,
     fs,
@@ -198,6 +200,8 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
+
+            monitor::iniciar(app.handle().clone());
 
             // Iniciado pelo Windows: só o widget. Aberto pela pessoa: a janela principal.
             if std::env::args().any(|a| a == ARG_MINIMIZADO) {

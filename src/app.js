@@ -86,7 +86,7 @@ async function carregarConfig() {
 
 /* ---------------- estado ---------------- */
 let S;
-const PADRAO = () => ({ dias: {}, tarefas: [], sessoes: [], inbox: [], youtube: [], timer: null, ultimo: {}, volume: 0.4, lembretes: true });
+const PADRAO = () => ({ dias: {}, tarefas: [], sessoes: [], inbox: [], youtube: [], timer: null, ultimo: {}, volume: 0.4, lembretes: true, ciclosGpu: [] });
 async function carregarEstado() {
   let e = null;
   try { e = JSON.parse(await ponte.ler('estado.json') || 'null') } catch { }
@@ -121,7 +121,7 @@ function irPara(a) {
   document.querySelectorAll('.pagina').forEach(x => x.classList.toggle('ativo', x.id === a));
   render();
 }
-function render() { ({ hoje: renderHoje, foco: renderFoco, semana: renderSemana, fechamento: renderFechamento, ajustes: renderAjustes })[aba](); enviarMini() }
+function render() { ({ hoje: renderHoje, foco: renderFoco, semana: renderSemana, fechamento: renderFechamento, sistema: renderSistema, ajustes: renderAjustes })[aba](); enviarMini() }
 const opcoesCtx = sel => Object.entries(CONFIG.contextos).map(([k, c]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${esc(c.nome)}</option>`).join('');
 const pilulaCtx = ctx => `<span class="pilula"><span class="ponto" style="background:${cor(ctx)}"></span>${esc(nomeCtx(ctx))}</span>`;
 
@@ -143,7 +143,8 @@ function renderHoje() {
           ${atual.foco ? `<button class="btn peq pri" data-act="focarCtx" data-ctx="${atual.ctx}">Começar foco</button>` : ''}
           ${atual.rotina ? `<button class="btn peq pri" data-act="abrirRotina" data-r="${atual.rotina}">Abrir roteiro</button>` : ''}</div>
         <div class="prog"><div style="width:${pct}%"></div></div>
-        <div class="depois">${prox ? `Depois: <b>${prox.ini}</b> ${esc(prox.titulo)}` : 'Último bloco do dia.'}</div></div>`;
+        <div class="depois">${prox ? `Depois: <b>${prox.ini}</b> ${esc(prox.titulo)}` : 'Último bloco do dia.'}</div>
+        ${atual.lazer && gpuOcupada() ? `<div class="aviso" style="margin:12px 0 0">${esc(textoGpuOcupada())}: jogar agora disputa a GPU com ele. Dá para mandar o próximo treino para a máquina Linux.</div>` : ''}</div>`;
     } else if (prox) {
       hero = `<div class="agora"><div class="rotulo">livre agora</div><h3>Próximo: ${esc(prox.titulo)}</h3><div class="depois">às ${prox.ini}</div></div>`;
     }
@@ -393,7 +394,7 @@ function renderSemana() {
       <p class="peq muted" style="margin-bottom:0">Meio círculo é o mínimo, e conta. A soma é x de 7, não sequência: um dia ruim não zera nada.</p></div>
     <div><div class="cartao"><h2>Equilíbrio</h2>${metas}
       ${ctxLazer ? medida(ctxLazer, 'Lazer que aconteceu', lazerFeito, metaL, `${lazerFeito} / ${metaL}`) + `<p class="peq muted" style="margin-top:-6px">De ${lazerPlan} blocos planejados. Lazer abaixo da meta também é alerta.</p>` : ''}
-      ${outros}</div></div></div>`;
+      ${outros}${gpuSemana(seg, somaDias(dias7[6], 1))}</div></div></div>`;
 }
 
 /* ================= FECHAR O DIA ================= */
@@ -432,6 +433,94 @@ function renderFechamento() {
     salvar(); renderFechamento(); toast('Dia fechado. Bom descanso.');
   };
 }
+
+/* ================= SISTEMA ================= */
+// Amostras chegam do Rust a cada 2 s pelo evento "sistema". Guardamos os últimos 10 min.
+const SIS = { ultima: null, emUsoLongo: false, hist: [] };
+const GB = b => (b / 1024 ** 3).toFixed(1).replace('.', ',');
+const fmt1 = v => v.toFixed(1).replace('.', ',');
+function gpuOcupada() { const g = SIS.ultima?.gpus[0]; return !!g && (SIS.emUsoLongo || g.uso >= 50) }
+function textoGpuOcupada() {
+  const g = SIS.ultima.gpus[0], quem = g.processos.map(p => p.nome).join(', ');
+  return `GPU em ${g.uso}%${quem ? ` (${quem})` : ''}`;
+}
+function gpuSemana(ini, fimExcl) {
+  const a = dataDe(ini).getTime(), b = dataDe(fimExcl).getTime();
+  const ms = S.ciclosGpu.reduce((t, c) => t + Math.max(0, Math.min(c.fimMs, b) - Math.max(c.inicioMs, a)), 0);
+  if (!ms && !SIS.ultima?.gpus.length) return '';
+  return `<div class="linha peq muted" style="margin-top:10px">GPU ocupada no PC (treinos longos já encerrados): <b style="color:var(--ink)">${fmt1(ms / 3.6e6)} h</b></div>`;
+}
+const dur = ms => { const m = Math.round(ms / 60000); return m >= 60 ? `${Math.floor(m / 60)} h ${pad(m % 60)}` : `${m} min` };
+
+let hoverSpark = {}; // índice sob o mouse, por gráfico, para sobreviver às re-renderizações
+function spark(id, valores, max, rotulo, fmtV) {
+  const W = 600, H = 64, n = valores.length;
+  if (n < 2) return `<div class="spark-caixa"><div class="r">${rotulo}</div><div class="vazio">Juntando amostras…</div></div>`;
+  const x = i => i / (n - 1) * W, y = v => H - 4 - (v / max) * (H - 8);
+  const pts = valores.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const h = hoverSpark[id];
+  const marca = h != null && h < n ? `<line class="cruz" x1="${x(h)}" x2="${x(h)}" y1="0" y2="${H}"/><circle class="marcador" cx="${x(h)}" cy="${y(valores[h])}" r="4"/>` : '';
+  const dica = h != null && h < n ? `<div class="dica" style="left:${x(h) / W * 100}%">${fmtV(valores[h])} · há ${fmt1((n - 1 - h) * 2 / 60)} min</div>` : '';
+  return `<div class="spark-caixa"><div class="r">${rotulo}<b>${fmtV(valores[n - 1])}</b></div>
+    <svg class="spark" data-spark="${id}" data-n="${n}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <line class="base" x1="0" x2="${W}" y1="${H - 4}" y2="${H - 4}"/>
+      <polygon class="area" points="0,${H - 4} ${pts} ${W},${H - 4}"/><polyline class="linha-s" points="${pts}" vector-effect="non-scaling-stroke"/>${marca}
+    </svg>${dica}</div>`;
+}
+document.addEventListener('mousemove', e => {
+  const s = e.target.closest?.('[data-spark]');
+  const ativo = Object.keys(hoverSpark)[0];
+  if (!s) { if (ativo) { hoverSpark = {}; if (aba === 'sistema') renderSistema() } return }
+  const r = s.getBoundingClientRect(), n = +s.dataset.n;
+  const i = Math.round((e.clientX - r.left) / r.width * (n - 1));
+  if (hoverSpark[s.dataset.spark] !== i) { hoverSpark = { [s.dataset.spark]: i }; renderSistema() }
+});
+
+function renderSistema() {
+  const A = SIS.ultima;
+  if (!A) {
+    $('#sistema').innerHTML = `<div class="cabeca"><div><h1>Sistema</h1><p>${TAURI ? 'Esperando a primeira leitura…' : 'O monitor funciona no app instalado.'}</p></div></div>`;
+    return;
+  }
+  const tile = (r, v, extra = '', pct, alertaEm = 101) => `<div class="tile"><div class="r">${r}</div><div class="v">${v}${extra ? ` <small>${extra}</small>` : ''}</div>${pct != null ? `<div class="barra"><div style="width:${Math.min(100, pct)}%;background:${pct >= alertaEm ? 'var(--alerta)' : 'var(--acento)'}"></div></div>` : ''}</div>`;
+  const gpus = A.gpus.map((g, gi) => {
+    const hv = SIS.hist.map(h => h.gpus[gi]).filter(Boolean);
+    return `<div class="cartao"><h2>${esc(g.nome)}<span class="estado-gpu ${gi === 0 && SIS.emUsoLongo ? 'ativo' : ''}">${gi === 0 && SIS.emUsoLongo ? '● em uso longo, aviso quando parar' : ''}</span></h2>
+      <div class="tiles">
+        ${tile('Uso', `${g.uso}%`, `memória ${g.usoMemoria}%`, g.uso)}
+        ${tile('VRAM', `${GB(g.vramUsada)}`, `/ ${GB(g.vramTotal)} GB`, g.vramTotal ? g.vramUsada / g.vramTotal * 100 : 0, 95)}
+        ${g.temperatura != null ? tile('Temperatura', `${g.temperatura} °C`, '', g.temperatura, 83) : ''}
+        ${g.potenciaW != null ? tile('Potência', `${Math.round(g.potenciaW)} W`, g.limiteW ? `/ ${Math.round(g.limiteW)} W` : '', g.limiteW ? g.potenciaW / g.limiteW * 100 : null) : ''}
+        ${g.clockSm != null ? tile('Clock', `${g.clockSm}`, `MHz · mem ${g.clockMemoria ?? '–'}`) : ''}
+        ${g.ventoinha != null ? tile('Ventoinha', `${g.ventoinha}%`) : ''}
+      </div>
+      ${spark('uso' + gi, hv.map(h => h.uso), 100, 'Uso da GPU, últimos 10 min', v => `${v}%`)}
+      ${spark('vram' + gi, hv.map(h => h.vramUsada / 1024 ** 3), g.vramTotal / 1024 ** 3, 'VRAM, últimos 10 min', v => `${fmt1(v)} GB`)}
+      <h2 style="margin-top:4px">Processos de computação</h2>
+      ${g.processos.map(p => `<div class="tarefa"><span class="ponto" style="background:var(--acento)"></span><div class="txt">${esc(p.nome)} <span class="peq muted">pid ${p.pid}${p.vram != null ? ` · ${GB(p.vram)} GB` : ''}</span></div></div>`).join('') || '<div class="vazio">Nenhum treino ou cálculo usando a GPU agora.</div>'}
+      ${g.outrosProcessos ? `<div class="peq muted" style="margin-top:6px">+ ${g.outrosProcessos} outros programas com contexto na GPU (janelas, navegadores…)</div>` : ''}
+      ${g.uso < 5 && g.vramTotal && g.vramUsada / g.vramTotal > 0.7 && g.processos.length ? `<div class="aviso" style="margin:12px 0 0">A GPU está parada (${g.uso}%), mas ${GB(g.vramUsada)} GB de VRAM estão ocupados e ${esc(g.processos.map(p => `${p.nome} (pid ${p.pid})`).join(', '))} segue aberto. Pode ser um treino ou kernel parado segurando memória.</div>` : ''}
+    </div>`;
+  }).join('') || `<div class="cartao"><h2>GPU</h2><div class="vazio">Nenhuma GPU NVIDIA encontrada${A.gpuErro ? `: ${esc(A.gpuErro)}` : ''}.</div></div>`;
+  const ciclos = S.ciclosGpu.slice(-6).reverse().map(c => `<div class="tarefa"><div class="txt">${new Date(c.inicioMs).toLocaleString('pt-BR', { weekday: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} → ${new Date(c.fimMs).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+    <span class="peq muted">· ${dur(c.fimMs - c.inicioMs)}${c.processos.length ? ` · ${esc(c.processos.join(', '))}` : ''}</span></div></div>`).join('');
+  $('#sistema').innerHTML = `<div class="cabeca"><div><h1>Sistema</h1><p>Leitura a cada 2 s. Quando a GPU passa 10 min ocupada e depois fica 5 min parada, chega um aviso.</p></div></div>
+    <div class="grade"><div>${gpus}</div><div>
+      <div class="cartao"><h2>CPU e memória</h2><div class="tiles" style="grid-template-columns:1fr 1fr">
+        ${tile('CPU', `${Math.round(A.cpu)}%`, '', A.cpu)}
+        ${tile('RAM', `${GB(A.ramUsada)}`, `/ ${Math.round(A.ramTotal / 1024 ** 3)} GB`, A.ramUsada / A.ramTotal * 100, 92)}</div>
+        ${spark('cpu', SIS.hist.map(h => h.cpu), 100, 'CPU, últimos 10 min', v => `${Math.round(v)}%`)}</div>
+      <div class="cartao"><h2>Discos</h2>${A.discos.map(d => `<div class="medida"><div class="topo">${esc(d.ponto)}<b>${GB(d.livre)} GB livres</b></div>
+        <div class="barra"><div style="width:${(1 - d.livre / d.total) * 100}%;background:${d.livre / d.total < 0.1 ? 'var(--alerta)' : 'var(--acento)'}"></div></div></div>`).join('')}</div>
+      <div class="cartao"><h2>Treinos longos detectados</h2>${ciclos || '<div class="vazio">Nenhum ainda. Aparecem aqui quando a GPU fica 10 min ou mais ocupada e depois para.</div>'}</div>
+    </div></div>`;
+}
+ponte.ouvir('sistema', ([amostra, emUsoLongo]) => {
+  SIS.ultima = amostra; SIS.emUsoLongo = emUsoLongo;
+  SIS.hist.push(amostra); if (SIS.hist.length > 300) SIS.hist.shift();
+  if (aba === 'sistema') renderSistema();
+});
+ponte.ouvir('gpu-ciclo', c => { S.ciclosGpu.push(c); if (S.ciclosGpu.length > 200) S.ciclosGpu.shift(); salvar(); if (aba === 'sistema') renderSistema() });
 
 /* ================= AJUSTES ================= */
 let autostartLigado = null;

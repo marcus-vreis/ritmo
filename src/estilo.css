@@ -210,6 +210,26 @@ input[type=range] { padding: 0; accent-color: var(--acento); background: none; b
 .rodape-modal { display: flex; gap: 8px; align-items: center; margin-top: 24px }
 .tempo-modal { font: 200 54px var(--fonte-display); text-align: center; font-variant-numeric: tabular-nums; margin: 10px 0 }
 
+/* ---------- sistema ---------- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px }
+.tile { background: var(--sup-2); border-radius: 11px; padding: 11px 13px }
+.tile .r { font-size: 12px; color: var(--muted) }
+.tile .v { font: 500 24px var(--fonte-display); font-variant-numeric: tabular-nums; letter-spacing: -.01em; line-height: 1.25 }
+.tile .v small { font-size: 13px; color: var(--muted); font-weight: 400 }
+.tile .barra { margin-top: 7px; height: 5px }
+.spark-caixa { position: relative; margin-bottom: 14px }
+.spark-caixa .r { font-size: 12px; color: var(--muted); margin-bottom: 4px; display: flex }
+.spark-caixa .r b { margin-left: auto; color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums }
+.spark { width: 100%; height: 64px; display: block; cursor: crosshair }
+.spark .area { fill: var(--acento-suave) }
+.spark .linha-s { fill: none; stroke: var(--acento); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round }
+.spark .base { stroke: var(--linha); stroke-width: 1 }
+.spark .cruz { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3 }
+.spark .marcador { fill: var(--acento); stroke: var(--sup); stroke-width: 2 }
+.dica { position: absolute; top: 18px; transform: translateX(-50%); background: var(--ink); color: var(--bg); font-size: 12px; padding: 3px 8px; border-radius: 6px; pointer-events: none; white-space: nowrap; font-variant-numeric: tabular-nums }
+.estado-gpu { margin-left: auto; text-transform: none; letter-spacing: 0 }
+.estado-gpu.ativo { color: var(--acento) }
+
 .aviso { background: color-mix(in srgb, var(--alerta) 12%, var(--sup)); border: 1px solid color-mix(in srgb, var(--alerta) 40%, transparent); color: var(--ink); padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 13.5px }
 .ajuste { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--linha) }
 .ajuste:last-child { border-bottom: 0 }
