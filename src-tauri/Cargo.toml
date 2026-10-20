@@ -1,0 +1,26 @@
+[package]
+name = "ritmo"
+version = "0.1.0"
+description = "Agenda de rotinas e foco para o desktop"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "ritmo_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-notification = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

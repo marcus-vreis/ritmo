@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>ritmo · agora</title>
+<style>
+:root{--bg:#ffffff;--ink:#1f1e1b;--muted:#76746d;--linha:#e7e4dc;--sup-2:#f1efe9;--acento:#5b5bd6;--ok:#2f9e5b;
+  --fonte:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;--display:"Segoe UI Variable Display","Segoe UI",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#19191d;--ink:#ececef;--muted:#9c9ba4;--linha:#2a2a30;--sup-2:#232328;--acento:#8d8df2;--ok:#58c987}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font:13px/1.35 var(--fonte);border:1px solid var(--linha);user-select:none;cursor:default}
+#raiz{height:100%;padding:12px 14px 10px;display:flex;flex-direction:column;gap:6px}
+.topo{display:flex;align-items:center;gap:10px}
+.tempo{font:250 34px var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.info{flex:1;min-width:0}
+.fase{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--acento);font-weight:650}
+.fase.pausa{color:var(--ok)}
+.l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m{color:var(--muted)}
+.prog{height:3px;border-radius:99px;background:var(--sup-2);overflow:hidden}
+.prog>div{height:100%;background:var(--acento);transition:width .5s linear}
+.prog.pausa>div{background:var(--ok)}
+.agenda{display:flex;align-items:center;gap:7px;font-size:12px}
+.ponto{width:7px;height:7px;border-radius:50%;flex:none}
+.botoes{display:flex;gap:2px;margin-left:auto;flex:none}
+button{font:inherit;font-size:12px;border:0;background:none;color:var(--muted);border-radius:6px;padding:3px 7px;cursor:pointer}
+button:hover{background:var(--sup-2);color:var(--ink)}
+.grande{font:600 16px var(--display);letter-spacing:-.01em}
+</style>
+</head>
+<body>
+<div id="raiz" data-tauri-drag-region></div>
+<script src="mini.js"></script>
+</body>
+</html>

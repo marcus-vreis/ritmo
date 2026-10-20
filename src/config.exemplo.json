@@ -1,0 +1,136 @@
+{
+  "contextos": {
+    "trabalho": { "nome": "Trabalho", "cor": "#3b82f6" },
+    "estudo": { "nome": "Estudo", "cor": "#8b5cf6", "metaHoras": 8 },
+    "pessoal": { "nome": "Pessoal", "cor": "#d4a017" },
+    "lazer": { "nome": "Lazer", "cor": "#22a55a", "metaBlocos": 3 },
+    "vida": { "nome": "Vida", "cor": "#9ca3af" }
+  },
+  "presets": { "25/5": [25, 5, 15], "50/10": [50, 10, 20] },
+  "habitos": ["comecar_dia", "leitura", "movimento", "revisao"],
+  "checklistNoite": ["Alarme longe da cama para amanhã", "Celular fora do quarto"],
+  "fechamento": { "rotina": "revisao" },
+  "rotinas": {
+    "comecar_dia": {
+      "nome": "Começar o dia",
+      "minimo": "Levantar e beber água.",
+      "passos": [
+        { "t": "texto", "titulo": "Primeiro, levante", "corpo": "Saia da cama antes de qualquer outra coisa. O alarme fica longe da cama; o celular fica onde está." },
+        { "t": "texto", "titulo": "Água e luz", "corpo": "Um copo de água e dois minutos de luz natural na janela." },
+        { "t": "texto", "titulo": "Três prioridades", "corpo": "Na aba Hoje, marque com ★ as 3 coisas que fazem o dia valer." }
+      ]
+    },
+    "leitura": {
+      "nome": "Leitura",
+      "minimo": "Uma página.",
+      "passos": [{ "t": "timer", "titulo": "Leitura", "min": 20, "dica": "Um livro que não seja de trabalho." }]
+    },
+    "movimento": {
+      "nome": "Movimento",
+      "minimo": "5 minutos de caminhada.",
+      "passos": [{ "t": "timer", "titulo": "Caminhada ou alongamento", "min": 20, "dica": "Sem fone, se der." }]
+    },
+    "revisao": {
+      "nome": "Revisão do dia",
+      "minimo": "Uma linha: o que deu certo hoje.",
+      "passos": [
+        { "t": "campo", "rotulo": "O que deu certo hoje?" },
+        { "t": "campo", "rotulo": "O que travou, e por quê?" },
+        { "t": "campo", "rotulo": "Uma coisa concreta para fazer diferente amanhã" }
+      ]
+    },
+    "preparar_reuniao": {
+      "nome": "Preparar a reunião semanal",
+      "minimo": "Três linhas: fiz, travei, próximo passo.",
+      "passos": [
+        { "t": "campo", "rotulo": "O que fiz desde a última reunião" },
+        { "t": "campo", "rotulo": "O que aprendi" },
+        { "t": "campo", "rotulo": "Onde estou inseguro / o que quero perguntar" },
+        { "t": "campo", "rotulo": "Próximo passo que proponho" },
+        { "t": "copiar" }
+      ]
+    },
+    "pos_reuniao": {
+      "nome": "Depois da reunião",
+      "minimo": "Anotar a entrega da semana.",
+      "passos": [
+        { "t": "campo", "rotulo": "Combinados" },
+        { "t": "campo", "rotulo": "Entrega da próxima reunião (uma coisa só)", "tarefaEmDias": 1, "prefixoTarefa": "Entrega da semana: ", "ctxTarefa": "estudo" }
+      ]
+    }
+  },
+  "semana": {
+    "0": [
+      { "ini": "08:00", "fim": "08:10", "titulo": "Começar o dia", "ctx": "vida", "rotina": "comecar_dia" },
+      { "ini": "10:00", "fim": "18:00", "titulo": "Descanso de verdade", "ctx": "lazer", "lazer": true },
+      { "ini": "19:00", "fim": "19:30", "titulo": "Olhar a semana que vem", "ctx": "vida" },
+      { "ini": "21:30", "fim": "21:45", "titulo": "Revisão do dia", "ctx": "vida", "rotina": "revisao" },
+      { "ini": "22:30", "fim": "23:59", "titulo": "Dormir", "ctx": "vida" }
+    ],
+    "1": [
+      { "ini": "07:00", "fim": "07:10", "titulo": "Começar o dia", "ctx": "vida", "rotina": "comecar_dia" },
+      { "ini": "07:15", "fim": "08:15", "titulo": "Bloco de estudo", "ctx": "estudo", "foco": true },
+      { "ini": "09:00", "fim": "12:00", "titulo": "Trabalho profundo", "ctx": "trabalho", "foco": true },
+      { "ini": "12:00", "fim": "13:00", "titulo": "Almoço", "ctx": "vida" },
+      { "ini": "13:00", "fim": "18:00", "titulo": "Trabalho", "ctx": "trabalho", "foco": true },
+      { "ini": "18:00", "fim": "18:30", "titulo": "Movimento", "ctx": "pessoal", "rotina": "movimento" },
+      { "ini": "19:00", "fim": "21:00", "titulo": "Livre", "ctx": "lazer", "lazer": true },
+      { "ini": "21:00", "fim": "21:20", "titulo": "Leitura", "ctx": "pessoal", "rotina": "leitura" },
+      { "ini": "21:30", "fim": "21:45", "titulo": "Revisão do dia", "ctx": "vida", "rotina": "revisao" },
+      { "ini": "22:30", "fim": "23:59", "titulo": "Dormir", "ctx": "vida" }
+    ],
+    "2": [
+      { "ini": "07:00", "fim": "07:10", "titulo": "Começar o dia", "ctx": "vida", "rotina": "comecar_dia" },
+      { "ini": "07:15", "fim": "08:15", "titulo": "Bloco de estudo", "ctx": "estudo", "foco": true },
+      { "ini": "09:00", "fim": "12:00", "titulo": "Trabalho profundo", "ctx": "trabalho", "foco": true },
+      { "ini": "12:00", "fim": "13:00", "titulo": "Almoço", "ctx": "vida" },
+      { "ini": "13:00", "fim": "18:00", "titulo": "Trabalho", "ctx": "trabalho", "foco": true },
+      { "ini": "18:00", "fim": "18:45", "titulo": "Preparar a reunião de amanhã", "ctx": "estudo", "rotina": "preparar_reuniao" },
+      { "ini": "19:00", "fim": "21:00", "titulo": "Livre", "ctx": "lazer", "lazer": true },
+      { "ini": "21:00", "fim": "21:20", "titulo": "Leitura", "ctx": "pessoal", "rotina": "leitura" },
+      { "ini": "21:30", "fim": "21:45", "titulo": "Revisão do dia", "ctx": "vida", "rotina": "revisao" },
+      { "ini": "22:30", "fim": "23:59", "titulo": "Dormir", "ctx": "vida" }
+    ],
+    "3": [
+      { "ini": "07:00", "fim": "07:10", "titulo": "Começar o dia", "ctx": "vida", "rotina": "comecar_dia" },
+      { "ini": "07:15", "fim": "08:15", "titulo": "Bloco de estudo", "ctx": "estudo", "foco": true },
+      { "ini": "09:00", "fim": "12:00", "titulo": "Trabalho profundo", "ctx": "trabalho", "foco": true },
+      { "ini": "12:00", "fim": "13:00", "titulo": "Almoço", "ctx": "vida" },
+      { "ini": "13:00", "fim": "17:00", "titulo": "Trabalho", "ctx": "trabalho", "foco": true },
+      { "ini": "17:00", "fim": "18:00", "titulo": "Reunião semanal", "ctx": "estudo" },
+      { "ini": "18:00", "fim": "18:15", "titulo": "Depois da reunião", "ctx": "estudo", "rotina": "pos_reuniao" },
+      { "ini": "19:00", "fim": "21:00", "titulo": "Livre", "ctx": "lazer", "lazer": true },
+      { "ini": "21:30", "fim": "21:45", "titulo": "Revisão do dia", "ctx": "vida", "rotina": "revisao" },
+      { "ini": "22:30", "fim": "23:59", "titulo": "Dormir", "ctx": "vida" }
+    ],
+    "4": [
+      { "ini": "07:00", "fim": "07:10", "titulo": "Começar o dia", "ctx": "vida", "rotina": "comecar_dia" },
+      { "ini": "07:15", "fim": "08:15", "titulo": "Bloco de estudo", "ctx": "estudo", "foco": true },
+      { "ini": "09:00", "fim": "12:00", "titulo": "Trabalho profundo", "ctx": "trabalho", "foco": true },
+      { "ini": "12:00", "fim": "13:00", "titulo": "Almoço", "ctx": "vida" },
+      { "ini": "13:00", "fim": "18:00", "titulo": "Trabalho", "ctx": "trabalho", "foco": true },
+      { "ini": "18:00", "fim": "18:30", "titulo": "Movimento", "ctx": "pessoal", "rotina": "movimento" },
+      { "ini": "19:00", "fim": "21:00", "titulo": "Livre", "ctx": "lazer", "lazer": true },
+      { "ini": "21:00", "fim": "21:20", "titulo": "Leitura", "ctx": "pessoal", "rotina": "leitura" },
+      { "ini": "21:30", "fim": "21:45", "titulo": "Revisão do dia", "ctx": "vida", "rotina": "revisao" },
+      { "ini": "22:30", "fim": "23:59", "titulo": "Dormir", "ctx": "vida" }
+    ],
+    "5": [
+      { "ini": "07:00", "fim": "07:10", "titulo": "Começar o dia", "ctx": "vida", "rotina": "comecar_dia" },
+      { "ini": "09:00", "fim": "12:00", "titulo": "Trabalho profundo", "ctx": "trabalho", "foco": true },
+      { "ini": "12:00", "fim": "13:00", "titulo": "Almoço", "ctx": "vida" },
+      { "ini": "13:00", "fim": "17:30", "titulo": "Trabalho", "ctx": "trabalho", "foco": true },
+      { "ini": "18:00", "fim": "22:00", "titulo": "Sexta livre", "ctx": "lazer", "lazer": true },
+      { "ini": "22:00", "fim": "22:15", "titulo": "Revisão do dia", "ctx": "vida", "rotina": "revisao" },
+      { "ini": "23:00", "fim": "23:59", "titulo": "Dormir", "ctx": "vida" }
+    ],
+    "6": [
+      { "ini": "08:00", "fim": "08:10", "titulo": "Começar o dia", "ctx": "vida", "rotina": "comecar_dia" },
+      { "ini": "08:30", "fim": "11:30", "titulo": "Bloco profundo de estudo", "ctx": "estudo", "foco": true },
+      { "ini": "12:00", "fim": "13:00", "titulo": "Almoço", "ctx": "vida" },
+      { "ini": "13:00", "fim": "19:00", "titulo": "Livre", "ctx": "lazer", "lazer": true },
+      { "ini": "21:30", "fim": "21:45", "titulo": "Revisão do dia", "ctx": "vida", "rotina": "revisao" },
+      { "ini": "23:00", "fim": "23:59", "titulo": "Dormir", "ctx": "vida" }
+    ]
+  }
+}

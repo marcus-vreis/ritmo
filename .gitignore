@@ -1,0 +1,11 @@
+node_modules/
+src-tauri/target/
+src-tauri/gen/
+
+# Rotina pessoal e protótipo antigo: ficam só nesta máquina.
+config.pessoal.json
+agenda/
+
+.claude/
+.vscode/
+*.log

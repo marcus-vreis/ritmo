@@ -1,0 +1,15 @@
+{
+  "name": "ritmo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Agenda de rotinas e foco para o desktop (Tauri v2)",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "icones": "tauri icon assets/icone.svg"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
